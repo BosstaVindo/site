@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>TELEAUTO</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+        }
+        h1 {
+            color: #1e88e5;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        form, .section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 500px;
+        }
+        form label, .section label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        form input[type="text"],
+        form input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            max-width: 500px;
+        }
+        ul li {
+            background: #fff;
+            margin: 2px 0;
+            padding: 5px 10px;
+            border-radius: 5px;
+            box-shadow: 0px 1px 3px rgba(0,0,0,0.05);
+        }
+        img {
+            margin-top: 10px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div style="position: absolute; left: 20px; top: 20px; padding: 10px; background: #fff; border-radius: 10px; box-shadow: 0 0 5px rgba(0,0,0,0.2); max-height: 400px; overflow-y: auto;">
+        <h3>Conectados</h3>
+        <ul id="clientes">
+            {% for c in connected %}
+                <li>{{ c }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <h1>TELEAUTO</h1>
+
+    <form method="post" enctype="multipart/form-data" action="/upload">
+        <label>DDD (opcional):</label>
+        <input type="text" name="ddd">
+        <label>Upload de lista (.txt):</label>
+        <input type="file" name="file" accept=".txt" required>
+        <button type="submit">Enviar</button>
+    </form>
+
+    <div class="section">
+        <h2>Números Carregados:</h2>
+        <ul>
+            {% for number in numbers %}
+                <li>{{ number }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Conectar Celular</h2>
+        <p>Escaneie o QR Code abaixo com o app Android:</p>
+        <img src="{{ qr_url }}" alt="QR Code">
+    </div>
+
+    <div class="section">
+        <h2>Controle</h2>
+        <button onclick="enviarLigar()">Ligar</button>
+    </div>
+
+    <script>
+        const ws = new WebSocket("{{ ws_url }}");
+
+        ws.onopen = () => {
+            console.log("Painel conectado ao WebSocket");
+        };
+
+        ws.onmessage = (event) => {
+            console.log("Mensagem recebida:", event.data);
+        };
+
+        function enviarLigar() {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send("ligar");
+                alert("Comando 'ligar' enviado");
+            } else {
+                alert("WebSocket não conectado");
+            }
+        }
+    </script>
+</body>
+</html>
